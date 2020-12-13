@@ -28,6 +28,17 @@ object ReferentialSanityCheck {
           )
       }
     case ImportContext.Missing => F.raiseError(new ResolutionFailure(s"Missing import cannot reference import $child"))
+    case ImportContext.Local(_) =>
+      child match {
+               case ImportContext.Local(path) =>F.raiseError(
+            new ResolutionFailure(s"Referential sanity violation - disabled local import file")
+          )
+        case ImportContext.Env(v) =>           F.raiseError(
+            new ResolutionFailure(s"Referential sanity violation - disabled local import env")
+        )
+        case _ => F.unit
+      }
+
     case _                     => F.unit
   }
 
